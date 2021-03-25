@@ -5,112 +5,41 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private Button buttonStartThread;
-    private Handler mainHandler = new Handler();
-    private volatile boolean stopThread = false; //true olursa aşağıda thread'i durduracak
-
+    private ExampleLooperThread looperThread = new ExampleLooperThread();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        buttonStartThread= findViewById(R.id.button);
+    }
+
+    public void startThread(View v){
+        looperThread.start();//bandı çalıştırır
 
     }
-    
-    public void startThread(View v){
-        stopThread=false;//false olunca thread çalışmaya başlar
-        ExampleRunnable runnable = new ExampleRunnable(8);
-        new Thread(runnable).start();
-        /*
-        new Thread(new Runnable() {
+    public void stopThread(View v){
+        looperThread.looper.quit();//bandı durdurur
+
+    }
+    public void taskA(View v){
+        looperThread.handler.post(new Runnable() {//banda iş koyuyoruz
             @Override
             public void run() {
-
-            }
-        }).start();*/
-        buttonStartThread.setText("Start");
-    }
-
-    public void stopThread(View v){
-        stopThread=true;//threadi durdur
-        buttonStartThread.setText("Start");
-    }
-
-    class ExampleThread extends Thread{
-        int seconds;
-
-        public ExampleThread(int seconds) {
-            this.seconds = seconds;
-        }
-
-        @Override
-        public void run() {
-            for(int i=0;i<seconds;i++){
-                Log.d(TAG, "startThread: " + i);
-                try{
-                    Thread.sleep(1000);
-                }catch (Exception e){
-                    e.printStackTrace();
+                for (int i = 0; i < 6 ; i++) {
+                    Log.d(TAG, "run: " + i);
+                    SystemClock.sleep(1000);//her bir döngü sonunda 1 saniye bekle diyoruz
                 }
             }
-            buttonStartThread.setText("Finished");
-        }
+        });
     }
+    public void taskB(View v){
 
-    class ExampleRunnable implements Runnable{
-        int seconds;
-        ExampleRunnable(int seconds){
-            this.seconds=seconds;
-        }
-        @Override
-        public void run() {
-            for(int i=0;i<seconds;i++){
-                if(stopThread)//volatile boolean true olursa thread duracak
-                    return;
-                if(i==seconds/2) {//yarısına geldiyse
-                    /*
-                    Handler threadHandler = new Handler(Looper.getMainLooper());
-                    threadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            buttonStartThread.setText("%50");
-                        }
-                    });*/
-                    /*
-                    buttonStartThread.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            buttonStartThread.setText("%50");
-                        }
-                    });*/
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            buttonStartThread.setText("%50");
-                        }
-                    });
-                }
-                Log.d(TAG, "startThread: " + i);
-                try{
-                    Thread.sleep(1000);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    buttonStartThread.setText("Finished");
-                }
-            });
-
-        }
     }
 }
