@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
     public void startThread(View v){
         stopThread=false;//false olunca thread çalışmaya başlar
         ExampleRunnable runnable = new ExampleRunnable(8);
-        //runnable.run();
         new Thread(runnable).start();
         /*
         new Thread(new Runnable() {
@@ -40,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopThread(View v){
-        stopThread=true;//
+        stopThread=true;//threadi durdur
+        buttonStartThread.setText("Start");
     }
 
     class ExampleThread extends Thread{
@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+            buttonStartThread.setText("Finished");
         }
     }
 
@@ -103,6 +104,13 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    buttonStartThread.setText("Finished");
+                }
+            });
+
         }
     }
 }
